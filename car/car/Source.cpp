@@ -30,7 +30,7 @@ public:
 		if (fuel_lvl < 0) fuel_lvl = 0;
 		return fuel_lvl;
 	}
-	tank(int volume): VOLUME(volume)
+	void tank(int volume): VOLUME(volume)
 	{
 		/*if (vol < MIN_TANK_VOL)vol = MIN_TANK_VOL;
 		if (vol < MAX_TANK_VOL)vol = MAX_TANK_VOL;*/
