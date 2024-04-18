@@ -40,6 +40,10 @@ public:
 		this->fuel_lvl = 0;
 		cout << "tanc is rady" << this << endl;
 	}
+	~Tank()
+	{
+		cout << "tank is over";
+	}
 	void info() const
 	{
 		cout << "tank volume " << VOLUME << " liters.\n";
@@ -47,9 +51,74 @@ public:
 
 	}
 };
+
+#define MIN_ENG_CONSUMP 3
+#define MAX_ENG_CONSUMP 30
+class Engine
+{
+	const double CONSUMP;
+	double consump_per_sec;
+	bool is_start;
+public:
+	double get_consump()const
+	{
+		return CONSUMP;
+	}
+
+	double get_consumpper_sec()const
+	{
+		return consump_per_sec;
+	}
+	Engine(double consump)
+		:CONSUMP
+		(
+			consump < MIN_ENG_CONSUMP ? MIN_ENG_CONSUMP :
+			consump > MAX_ENG_CONSUMP ? MAX_ENG_CONSUMP :
+			consump
+		),
+		consump_per_sec(CONSUMP * 3e-5),is_start(false)
+	{
+		
+
+		cout << "eng is redy " << this << endl;
+	}
+	~Engine() 
+	{
+		cout << "eng is over " << this << endl;
+	}
+	void start()
+	{
+		is_start = true;
+	}
+	void stop()
+	{
+		is_start = false;
+	}
+	bool started() const
+	{
+		return is_start;
+	}
+	void info() const
+	{
+		cout << "consuption: " << CONSUMP << " liters/100km" << endl;
+		cout << "consuption: " << consump_per_sec << " liters/sec" << endl;
+		cout << "engine is  " << (is_start ? "started" : "stopped") << endl;
+	}
+
+};
+
+class car 
+{
+	Engine engine;
+	Tank tank;
+};
+
+//#define TANK_CHECK
+#define ENGINE
 int main()
 {
 	setlocale(LC_ALL, "");
+#ifdef TANK_CHECK
 	Tank tank(85);
 	int fuel;
 	do
@@ -59,6 +128,9 @@ int main()
 		tank.info();
 
 	} while (fuel > 0);
+#endif
+	Engine engine(10);
+	engine.info();
 
 }
 
