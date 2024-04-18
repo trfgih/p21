@@ -32,8 +32,6 @@ public:
 	}
 	void tank(int volume): VOLUME(volume)
 	{
-		/*if (vol < MIN_TANK_VOL)vol = MIN_TANK_VOL;
-		if (vol < MAX_TANK_VOL)vol = MAX_TANK_VOL;*/
 		this->fuel_lvl = 0;
 		cout << "tanc is rady" << this << endl;
 	}
