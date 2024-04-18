@@ -36,6 +36,7 @@ public:
 		volume>MAX_TANK_VOL?MAX_TANK_VOL:
 		volume)
 	{
+		true;
 		this->fuel_lvl = 0;
 		cout << "tanc is rady" << this << endl;
 	}
