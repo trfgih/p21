@@ -1,4 +1,5 @@
 #include<iostream>
+#include<conio.h>
 using namespace std;
 
 #define MIN_TANK_VOL 20
@@ -42,7 +43,7 @@ public:
 	}
 	~Tank()
 	{
-		cout << "tank is over";
+		cout << "tank is over" << endl;
 	}
 	void info() const
 	{
@@ -50,6 +51,7 @@ public:
 		cout << "fuel lvl " << fuel_lvl << " liters.\n";
 
 	}
+
 };
 
 #define MIN_ENG_CONSUMP 3
@@ -80,11 +82,11 @@ public:
 	{
 		
 
-		cout << "eng is redy " << this << endl;
+		cout << "engine is redy " << this << endl;
 	}
 	~Engine() 
 	{
-		cout << "eng is over " << this << endl;
+		cout << "engine is over " << this << endl;
 	}
 	void start()
 	{
@@ -107,14 +109,63 @@ public:
 
 };
 
-class car 
+class Car 
 {
 	Engine engine;
 	Tank tank;
+	bool driver_inside;
+public:
+	Car(int consump = 10, int vol = 60) : engine(consump), tank(vol), driver_inside(false) 
+	{
+		cout << "your car is ready to go" << endl;
+	}
+	~Car()
+	{
+		cout << "your car is over" << endl;
+	}
+	void get_in() 
+	{
+		driver_inside = true;
+		panel();
+	}
+	void get_out()
+	{
+		driver_inside = false;
+		cout << "out of the car" << endl;
+	}
+	void control()
+	{
+		char key;
+		do
+		{
+			key = _getch();
+			switch (key) 
+			{
+			case 13:driver_inside ? get_out() : get_in();break;
+					
+			}
+
+		} while (key!=27);
+
+	}
+	void panel()const 
+	{
+		while (driver_inside) 
+		{
+			system("CLS");
+			cout << "fuel lvl :\t" << tank.get_fuel_lvl() << "liters.\n";
+			cout << "engine is " << (engine.started() ? "started" : "stoped") << endl;
+		}
+	}
+	void info()const
+	{
+		engine.info();
+		tank.info();
+	}
 };
 
 //#define TANK_CHECK
-#define ENGINE
+//#define ENGINE
 int main()
 {
 	setlocale(LC_ALL, "");
@@ -129,8 +180,14 @@ int main()
 
 	} while (fuel > 0);
 #endif
+#ifdef ENGINE
 	Engine engine(10);
 	engine.info();
+#endif
+
+	Car bmw;
+	bmw.info();
+	bmw.control();
 
 }
 
