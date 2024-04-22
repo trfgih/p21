@@ -183,7 +183,7 @@ public:
 			case Enter:driver_inside ? get_out() : get_in();break;
 			case 'I':
 			case 'i': engine.started() ? stop() : start(); break;
-			case Escape:get_out(); break;
+			case Escape: stop(); get_out(); break;
 					
 			}
 
