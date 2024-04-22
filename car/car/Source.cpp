@@ -1,6 +1,10 @@
 #include<iostream>
 #include<conio.h>
+#include<thread>
 using namespace std;
+
+#define Enter 13
+#define Escape 27
 
 #define MIN_TANK_VOL 20
 #define MAX_TANK_VOL 120
@@ -114,6 +118,11 @@ class Car
 	Engine engine;
 	Tank tank;
 	bool driver_inside;
+	struct 
+	{
+		std::thread panel_thread;
+		std::thread engine_idle_thread;
+	}threads;
 public:
 	Car(int consump = 10, int vol = 60) : engine(consump), tank(vol), driver_inside(false) 
 	{
@@ -126,12 +135,29 @@ public:
 	void get_in() 
 	{
 		driver_inside = true;
-		panel();
+		threads.panel_thread = std::thread(&Car::panel,this);
 	}
 	void get_out()
 	{
+
 		driver_inside = false;
+		if(threads.panel_thread.joinable())threads.panel_thread.join();
+		system("CLS");
 		cout << "out of the car" << endl;
+	}
+	void start() 
+	{
+		if (tank.get_fuel_lvl())
+		{
+			engine.start();
+			threads.engine_idle_thread = std::thread(&Car::engine_idle, this);
+		}
+		
+	}
+	void stop() 
+	{
+		engine.stop();
+		if (threads.engine_idle_thread.joinable())threads.engine_idle_thread.join();
 	}
 	void control()
 	{
@@ -141,12 +167,33 @@ public:
 			key = _getch();
 			switch (key) 
 			{
-			case 13:driver_inside ? get_out() : get_in();break;
+			case'F':
+			case'f':
+			if (driver_inside) 
+			{
+				cout << "get out of the car";
+			}
+			else
+			{
+
+				double fuel;
+				cout << "введите уровень топлива: "; cin >> fuel;
+				tank.fill(fuel);
+			}
+			case Enter:driver_inside ? get_out() : get_in();break;
+			case 'I':
+			case 'i': engine.started() ? stop() : start(); break;
+			case Escape:get_out(); break;
 					
 			}
 
 		} while (key!=27);
 
+	}
+	void engine_idle()
+	{
+		while (engine.started() && tank.give_fuel(engine.get_consumpper_sec()))
+			this_thread::sleep_for(1s);
 	}
 	void panel()const 
 	{
@@ -155,6 +202,7 @@ public:
 			system("CLS");
 			cout << "fuel lvl :\t" << tank.get_fuel_lvl() << "liters.\n";
 			cout << "engine is " << (engine.started() ? "started" : "stoped") << endl;
+			std::this_thread::sleep_for(100ms);
 		}
 	}
 	void info()const
