@@ -76,6 +76,17 @@ public:
 	{
 		return consump_per_sec;
 	}
+	double set_consumpper_sec(int speed)
+	{
+		if (speed > 200)consump_per_sec = CONSUMP * 3e-5 * 10;
+		else if (speed > 140)consump_per_sec = CONSUMP * 3e-5 * 25 / 3;
+		else if (speed > 100)consump_per_sec = CONSUMP * 3e-5 * 20 / 3;
+		else if (speed > 60)consump_per_sec = CONSUMP * 3e-5 * 14 / 3;
+		else if (speed > 0)consump_per_sec = CONSUMP * 3e-5 * 20 / 3;
+		else consump_per_sec = CONSUMP * 3e-5;
+		return consump_per_sec;
+
+	}
 	Engine(double consump)
 		:CONSUMP
 		(
@@ -131,6 +142,10 @@ class Car
 	int speed;
 	const int MAX_SPEED;
 	const int ACCELERATE;
+	struct
+	{
+		bool reverse = false;
+	}transmission;
 public:
 	Car(int consump = 10, int vol = 60, int max_speed=250):
 		engine(consump),
@@ -184,6 +199,7 @@ public:
 		{
 			speed += ACCELERATE;
 			if (speed > MAX_SPEED)speed = MAX_SPEED;
+			if (transmission.reverse && speed > MAX_SPEED / 7)speed = MAX_SPEED / 7;
 			if (!threads.free_wheeling_thread.joinable())
 				threads.free_wheeling_thread = std::thread(&Car::free_wheeling, this);
 			std::this_thread::sleep_for(1s);
@@ -224,12 +240,12 @@ public:
 			case'I':case 'i': engine.started() ? stop() : start(); break;
 			case'W':case'w': accelerate(); break;
 			case'S':case's': slow_down(); break;
+			case'R':case'r': if (speed == 0)transmission.reverse = !transmission.reverse; break;
 			case Escape: 
 				speed = 0;
 				stop(); 
 				get_out(); 
-				break;
-					
+				break;	
 			}
 			if (tank.get_fuel_lvl() == 0)stop();
 			if (speed < 0)speed = 0;
@@ -242,16 +258,17 @@ public:
 	void free_wheeling() 
 	{
 		while (speed)
-		{
-			speed--;	
+		{	
 			if (speed < 0) speed = 0;
+			
 			std::this_thread::sleep_for(1s);
 		}
 	}
 	void engine_idle()
 	{
-		while (engine.started() && tank.give_fuel(engine.get_consumpper_sec()))
+		while (engine.started() && tank.give_fuel(engine.set_consumpper_sec(speed)))
 			this_thread::sleep_for(1s);
+
 	}
 	void panel()const 
 	{
@@ -259,7 +276,10 @@ public:
 		{
 			system("CLS");
 			for (int i = 0; i < speed / 3; i++)cout << "|"; cout << endl;;
-			cout << "Speed: " << speed << "km/h\n";
+			cout << "Speed: " << speed << "km/h\t";
+			cout << (transmission.reverse ? "R" : " ");
+			cout << endl;
+
 			cout << "engine is " << (engine.started() ? "started" : "stoped") << endl;
 			cout << "fuel lvl :\t" << tank.get_fuel_lvl() << "liters.\t";
 			if (tank.get_fuel_lvl() < 5) 
@@ -270,6 +290,7 @@ public:
 				SetConsoleTextAttribute(hConsole, 0xC7);
 			}
 			cout << endl;
+			cout << "consump: " << engine.get_consumpper_sec() << " liters/sec\n";
 			std::this_thread::sleep_for(100ms);
 		}
 
@@ -302,7 +323,7 @@ int main()
 	engine.info();
 #endif
 
-	Car bmw;
+	Car bmw(35,85,290);
 	bmw.info();
 	bmw.control();
 
